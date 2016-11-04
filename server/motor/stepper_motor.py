@@ -36,7 +36,7 @@ class Steps:
             target_pin = self.pin_map[target_pin_name]
             target_pin.control(step[target_pin_name])
 
-    def roll(self, clock_wise=False, wait_time=1):
+    def run(self, clock_wise=False, wait_time=1):
         # Cannot be faster than this
         wait_time = int(wait_time)/float(1000)
         if clock_wise:
@@ -48,18 +48,23 @@ class Steps:
                 self.do(step)
                 time.sleep(wait_time)
 
+class StepperMotor:
+    def __init__(self):
+        GPIO.setmode(GPIO.BCM)
+        red = Pin(11, 17)
+        orange = Pin(15, 22)
+        white = Pin(16, 23)
+        black = Pin(18, 24)
+        self.sequence = Steps(red, orange, white, black)
+
+    def roll(self, clock_wise=False, wait_time=1):
+        for i in xrange(512):
+            self.sequence.run(clock_wise=clock_wise, wait_time=wait_time)
+
 def main() :
-    GPIO.setmode(GPIO.BCM)
+    stepper_motor = StepperMotor()
+    stepper_motor.roll()
 
-    red = Pin(11, 17)
-    orange = Pin(15, 22)
-    white = Pin(16, 23)
-    black = Pin(18, 24)
-
-    sequence = Steps(red, orange, white, black)
-
-    while True:
-        sequence.roll(clock_wise=False, wait_time=1)
 
 if __name__ == "__main__" :
     main()
